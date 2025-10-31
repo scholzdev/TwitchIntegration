@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A simple, builder-based game event system.
@@ -31,6 +32,7 @@ public class SimpleGameEvent extends GameEvent {
     private final Runnable finishAction;
     private final Runnable tickAction;
     private final long tickInterval;
+    private final Supplier<Boolean> finishCondition;
 
     private final List<EventRegistration<?>> eventHandlers;
     private final List<Listener> registeredListeners = new ArrayList<>();
@@ -46,6 +48,7 @@ public class SimpleGameEvent extends GameEvent {
         this.finishAction = builder.finishAction;
         this.tickAction = builder.tickAction;
         this.tickInterval = builder.tickInterval;
+        this.finishCondition = builder.finishCondition;
         this.eventHandlers = builder.eventHandlers;
     }
 
@@ -58,8 +61,8 @@ public class SimpleGameEvent extends GameEvent {
             registeredListeners.add(listener);
         }
 
-        // Start tick task if defined
-        if (tickAction != null) {
+        // Start tick task if defined OR if we have a finish condition (for condition checking)
+        if (tickAction != null || finishCondition != null) {
             tickTask = Bukkit.getScheduler().runTaskTimer(plugin, this::onTick, 1L, tickInterval);
         }
 
@@ -68,6 +71,12 @@ public class SimpleGameEvent extends GameEvent {
 
     @Override
     protected void onTick() {
+        // Check finish condition
+        if (finishCondition != null && finishCondition.get()) {
+            stop();
+            return;
+        }
+
         if (tickAction != null) tickAction.run();
     }
 
@@ -98,6 +107,7 @@ public class SimpleGameEvent extends GameEvent {
         private Runnable finishAction;
         private Runnable tickAction;
         private long tickInterval = 1L; // default: every tick
+        private Supplier<Boolean> finishCondition;
 
         private final List<EventRegistration<?>> eventHandlers = new ArrayList<>();
 
@@ -110,10 +120,17 @@ public class SimpleGameEvent extends GameEvent {
         public Builder votingName(String votingName) { this.votingName = votingName; return this; }
         public Builder duration(long duration) { this.duration = duration; return this; }
 
+        /**
+         * Sets the event to run indefinitely until finishWhen condition is met.
+         * Same as duration(-1).
+         */
+        public Builder untilCondition() { this.duration = -1; return this; }
+
         public Builder onStart(Runnable action) { this.startAction = action; return this; }
         public Builder onFinish(Runnable action) { this.finishAction = action; return this; }
         public Builder onTick(Runnable action) { this.tickAction = action; return this; }
         public Builder tickInterval(long intervalTicks) { this.tickInterval = intervalTicks; return this; }
+        public Builder finishWhen(Supplier<Boolean> condition) { this.finishCondition = condition; return this; }
 
         public <T extends Event> Builder on(Class<T> eventClass, Consumer<T> handler) {
             return on(eventClass, EventPriority.NORMAL, handler);

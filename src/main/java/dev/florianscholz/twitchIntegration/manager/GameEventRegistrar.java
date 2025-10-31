@@ -39,7 +39,8 @@ public class GameEventRegistrar {
             new OneHPEvent(),
             new ChickenJockeyEvent(),
             new DrunkModeEvent(),
-            new SlownessEvent()
+            new SlownessEvent(),
+            new FarmBlocksEvent()
         );
 
         providers.forEach(provider -> manager.registerEvent(provider.create(plugin)));

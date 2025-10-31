@@ -24,6 +24,7 @@ public class BreakDamagePlayerEvent extends AbstractSimpleGameProvider {
                         .broadcast(Component.text("Break Damage stopped!", NamedTextColor.RED)))
                 .<BlockBreakEvent>on(BlockBreakEvent.class, event -> {
                     Player player = event.getPlayer();
+                    player.setNoDamageTicks(0);
                     player.damage(1f);
                 })
                 .build();
