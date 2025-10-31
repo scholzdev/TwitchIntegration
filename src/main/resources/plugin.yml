@@ -1,0 +1,12 @@
+name: TwitchIntegration
+version: '1.0-SNAPSHOT'
+main: dev.florianscholz.twitchIntegration.TwitchIntegration
+api-version: '1.21'
+load: STARTUP
+authors: [ scholzdev ]
+description: Spectate Swap
+
+commands:
+  events:
+    description: Events
+    usage: /events

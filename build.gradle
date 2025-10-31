@@ -1,0 +1,78 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '8.3.6'
+    id("xyz.jpenilla.run-paper") version "2.3.1"
+}
+
+group = 'dev.florianscholz'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+}
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
+    implementation group: 'com.github.twitch4j', name: 'twitch4j', version: '1.24.0'
+    implementation 'net.dmulloy2:ProtocolLib:5.4.0'
+}
+
+tasks {
+    runServer {
+        minecraftVersion("1.21")
+    }
+}
+
+def targetJavaVersion = 21
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion)
+    }
+}
+
+shadowJar {
+    archiveClassifier.set('')
+
+    // Wichtig: Alle Dependencies shaden
+    configurations = [project.configurations.runtimeClasspath]
+
+    // Service Files mergen (wichtig für Cache Provider!)
+    mergeServiceFiles()
+
+    relocate 'com.github.twitch4j', 'shaded.com.github.twitch4j'
+    relocate 'com.fasterxml.jackson', 'shaded.com.fasterxml.jackson'
+    relocate 'com.github.philippheuer', 'shaded.com.github.philippheuer'
+    relocate 'io.github.xanthic.cache', 'shaded.io.github.xanthic.cache'
+    relocate 'com.bucket4j', 'shaded.com.bucket4j'
+    relocate 'org.slf4j', 'shaded.org.slf4j'
+    relocate 'org.apache.commons', 'shaded.org.apache.commons'
+    relocate 'com.neovisionaries', 'shaded.com.neovisionaries'
+    relocate 'io.github.resilience4j', 'shaded.io.github.resilience4j'
+    relocate 'com.dmulloy2.protocol', 'shaded.com.dmulloy2.protocol' // <-- add this
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
