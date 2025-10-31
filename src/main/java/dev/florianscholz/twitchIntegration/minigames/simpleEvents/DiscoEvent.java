@@ -7,8 +7,6 @@ import org.bukkit.Particle;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -28,7 +26,6 @@ public class DiscoEvent extends AbstractSimpleGameProvider {
                 .duration(200)
                 .tickInterval(5)
                 .onStart(() -> forEachPlayer(p -> {
-                    p.playSound(p.getLocation(), "disco.mp3", 100, 1);
                     originalGlowing.put(p.getUniqueId(), p.isGlowing());
                 }))
                 .onTick(() -> forEachPlayer(player -> {
