@@ -4,7 +4,6 @@ import dev.florianscholz.twitchIntegration.TwitchIntegration;
 import dev.florianscholz.twitchIntegration.minigames.base.simple.AbstractSimpleGameProvider;
 import dev.florianscholz.twitchIntegration.minigames.base.simple.SimpleGameEvent;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Phantom;
 
@@ -30,6 +29,7 @@ public class PhantomEvent extends AbstractSimpleGameProvider {
                                 phantom.setTarget(player);
                                 phantom.setPersistent(true);
                                 phantom.setAware(true);
+                                phantom.setShouldBurnInDay(false);
                                 phantom.customName(Component.text("Nightmare"));
                             }
                     });
