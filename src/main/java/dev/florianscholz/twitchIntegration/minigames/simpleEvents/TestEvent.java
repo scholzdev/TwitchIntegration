@@ -17,6 +17,7 @@ public class TestEvent implements SimpleGameEventProvider {
         .description("A test event")
         .votingName("test")
         .duration(200)
+        .countdown(5)
         .on(EntityDamageEvent.class, e -> {
             if (e.getEntity() instanceof Chicken
                     && e.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {

@@ -52,7 +52,6 @@ public class EventDisplayManager {
 
         this.eventEndTime = System.currentTimeMillis() + (event.getDuration() * 50);
         startBossBar(event.getName(), event.getDuration());
-//        startActionBar(event.getName());
     }
 
     public void showEventEnd(GameEvent event) {
@@ -79,7 +78,6 @@ public class EventDisplayManager {
         }
 
         stopBossBar();
-//        stopActionBar();
     }
 
     private void startBossBar(String eventName, long durationTicks) {
@@ -124,30 +122,43 @@ public class EventDisplayManager {
         }.runTaskTimer(plugin, 0, 5);
     }
 
+    public void showCountdown(String eventName, int seconds, Runnable onComplete) {
+        final int[] secondsLeft = {seconds};
 
-//    private void startActionBar(String eventName) {
-//        stopActionBar();
-//
-//        actionBarTask = new BukkitRunnable() {
-//            @Override
-//            public void run() {
-//                long remaining = (eventEndTime - System.currentTimeMillis()) / 1000;
-//                if (remaining <= 0) {
-//                    cancel();
-//                    return;
-//                }
-//
-//                Component actionBar = Component.text(eventName + " | ")
-//                        .color(NamedTextColor.GOLD)
-//                        .append(Component.text(remaining + "s remaining")
-//                                .color(NamedTextColor.YELLOW));
-//
-//                for (Player player : Bukkit.getOnlinePlayers()) {
-//                    player.sendActionBar(actionBar);
-//                }
-//            }
-//        }.runTaskTimer(plugin, 0, 20);
-//    }
+        BukkitTask countdownTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (secondsLeft[0] <= 0) {
+                    cancel();
+                    onComplete.run();
+                    return;
+                }
+
+                Component title = Component.text(eventName)
+                        .color(NamedTextColor.RED)
+                        .decorate(TextDecoration.BOLD);
+
+                Component subtitle = Component.text("Starts in " + secondsLeft[0] + " second" + (secondsLeft[0] == 1 ? "" : "s"))
+                        .color(NamedTextColor.YELLOW);
+
+                Title titleDisplay = Title.title(
+                        title,
+                        subtitle,
+                        Title.Times.times(
+                                Duration.ofMillis(0),    // fade in
+                                Duration.ofMillis(1000), // stay
+                                Duration.ofMillis(200)   // fade out
+                        )
+                );
+
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.showTitle(titleDisplay);
+                }
+
+                secondsLeft[0]--;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
+    }
 
     private void stopBossBar() {
         if (currentBossBar != null) {
@@ -158,16 +169,7 @@ public class EventDisplayManager {
         }
     }
 
-
-//    private void stopActionBar() {
-//        if (actionBarTask != null) {
-//            actionBarTask.cancel();
-//            actionBarTask = null;
-//        }
-//    }
-
     public void cleanup() {
         stopBossBar();
-//        stopActionBar();
     }
 }

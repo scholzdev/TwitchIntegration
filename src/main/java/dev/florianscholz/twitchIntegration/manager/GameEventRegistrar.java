@@ -29,7 +29,6 @@ public class GameEventRegistrar {
         manager.registerEvent(new WrathOfKoko(plugin));
         manager.registerEvent(new RandomTP(plugin));
         manager.registerEvent(new InventoryShuffle(plugin));
-        manager.registerEvent(new PhantomFun(plugin));
 
         List<SimpleGameEventProvider> providers = List.of(
             new TestEvent(),
@@ -40,7 +39,8 @@ public class GameEventRegistrar {
             new ChickenJockeyEvent(),
             new DrunkModeEvent(),
             new SlownessEvent(),
-            new FarmBlocksEvent()
+            new FarmBlocksEvent(),
+            new PhantomEvent()
         );
 
         providers.forEach(provider -> manager.registerEvent(provider.create(plugin)));

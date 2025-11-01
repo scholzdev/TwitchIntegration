@@ -38,20 +38,21 @@ public abstract class GameEvent implements IGameEvent, Listener {
         isRunning = true;
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        plugin.getEventDisplayManager().showEventStart(this);
+        if (shouldShowStartImmediately()) {
+            plugin.getEventDisplayManager().showEventStart(this);
+        }
 
         try {
             onStart();
         } catch (Exception e) {
             plugin.getLogger().severe("Error starting event " + getName() + ": " + e.getMessage());
             e.printStackTrace();
-            stop(); // Cleanup on error
+            stop();
             return;
         }
 
-        // Schedule auto-stop
-        if (getDuration() > 0) {
-            durationTask = Bukkit.getScheduler().runTaskLater(plugin, this::stop, getDuration());
+        if (getDuration() > 0 && shouldShowStartImmediately()) {
+            scheduleDurationTask();
         }
     }
 
@@ -76,8 +77,13 @@ public abstract class GameEvent implements IGameEvent, Listener {
         }
 
         plugin.getEventDisplayManager().showEventEnd(this);
-
         plugin.getGameEventManager().onEventFinished(this);
+    }
+
+    protected void scheduleDurationTask() {
+        if (getDuration() > 0) {
+            durationTask = Bukkit.getScheduler().runTaskLater(plugin, this::stop, getDuration());
+        }
     }
 
     /**
@@ -105,14 +111,18 @@ public abstract class GameEvent implements IGameEvent, Listener {
     }
 
     /**
-     * Helper: Apply effect to all players
+     * Override this to control when to show the event start display.
+     * By default returns true. SimpleGameEvent overrides this for countdown support.
      */
+    protected boolean shouldShowStartImmediately() {
+        return true;
+    }
+
     protected void forEachPlayer(java.util.function.Consumer<Player> action) {
         getPlayers().forEach(action);
     }
 
     protected abstract void onStart();
     protected abstract void onFinish();
-    /** Called every tick while the event is active */
     protected void onTick() {}
 }
