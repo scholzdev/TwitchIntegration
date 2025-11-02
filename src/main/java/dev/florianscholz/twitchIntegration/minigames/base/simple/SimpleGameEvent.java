@@ -1,6 +1,7 @@
 package dev.florianscholz.twitchIntegration.minigames.base.simple;
 
 import dev.florianscholz.twitchIntegration.TwitchIntegration;
+import dev.florianscholz.twitchIntegration.manager.ScoreboardManager;
 import dev.florianscholz.twitchIntegration.minigames.base.GameEvent;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -63,6 +64,13 @@ public class SimpleGameEvent extends GameEvent {
     
     // Kill tracking system
     private final Map<UUID, Integer> playerKills = new HashMap<>();
+    
+    // Scoreboard system
+    @Getter private ScoreboardManager scoreboardManager;
+    
+    // Time tracking
+    private long startTime = -1;
+    private long endTime = -1;
 
     private SimpleGameEvent(Builder builder) {
         super(builder.plugin);
@@ -86,6 +94,9 @@ public class SimpleGameEvent extends GameEvent {
         this.teleportZ = builder.teleportZ;
         this.winCondition = builder.winCondition;
         this.rewardAction = builder.rewardAction;
+        this.scoreboardManager = builder.scoreboardTitle != null 
+            ? new ScoreboardManager(this, builder.scoreboardTitle) 
+            : null;
     }
 
     /**
@@ -161,6 +172,112 @@ public class SimpleGameEvent extends GameEvent {
         
         // If the list is empty, all entities are dead
         return spawnedEntities.isEmpty();
+    }
+    
+    /**
+     * Gets the scoreboard manager for this event.
+     * @return The scoreboard manager, or null if no scoreboard was configured
+     */
+    public ScoreboardManager getScoreboard() {
+        return scoreboardManager;
+    }
+    
+    /**
+     * Sets a line in the scoreboard.
+     * Shorthand for getScoreboard().setLine(line, text)
+     * @param line The line number
+     * @param text The text to display
+     */
+    public void setScoreboardLine(int line, String text) {
+        if (scoreboardManager != null) {
+            scoreboardManager.setLine(line, text);
+        }
+    }
+    
+    /**
+     * Updates the scoreboard display.
+     * Shorthand for getScoreboard().update()
+     */
+    public void updateScoreboard() {
+        if (scoreboardManager != null) {
+            scoreboardManager.update();
+        }
+    }
+    
+    /**
+     * Gets the remaining time in seconds for this event.
+     * Returns -1 if the event has no fixed duration (untilCondition).
+     * Returns 0 if the event has finished.
+     * 
+     * @return The remaining time in seconds, -1 if no duration, 0 if finished
+     */
+    public long getRemainingTime() {
+        if (duration == -1) {
+            return -1; // No fixed duration
+        }
+        
+        if (startTime == -1) {
+            return duration / 20; // Event hasn't started yet, return full duration in seconds
+        }
+        
+        if (endTime != -1 && System.currentTimeMillis() >= endTime) {
+            return 0; // Event has finished
+        }
+        
+        long currentTime = System.currentTimeMillis();
+        long elapsed = currentTime - startTime;
+        long remaining = (duration * 50) - elapsed; // duration is in ticks, convert to milliseconds
+        
+        return Math.max(0, remaining / 1000); // Convert to seconds
+    }
+    
+    /**
+     * Gets the remaining time formatted as MM:SS.
+     * Returns "∞" if the event has no fixed duration.
+     * 
+     * @return The remaining time formatted as MM:SS
+     */
+    public String getRemainingTimeFormatted() {
+        long seconds = getRemainingTime();
+        
+        if (seconds == -1) {
+            return "∞";
+        }
+        
+        long minutes = seconds / 60;
+        long secs = seconds % 60;
+        
+        return String.format("%02d:%02d", minutes, secs);
+    }
+    
+    /**
+     * Gets the elapsed time in seconds since the event started.
+     * Returns 0 if the event hasn't started yet.
+     * 
+     * @return The elapsed time in seconds
+     */
+    public long getElapsedTime() {
+        if (startTime == -1) {
+            return 0; // Event hasn't started yet
+        }
+        
+        long currentTime = System.currentTimeMillis();
+        long elapsed = currentTime - startTime;
+        
+        return elapsed / 1000; // Convert to seconds
+    }
+    
+    /**
+     * Gets the elapsed time formatted as MM:SS.
+     * 
+     * @return The elapsed time formatted as MM:SS
+     */
+    public String getElapsedTimeFormatted() {
+        long seconds = getElapsedTime();
+        long minutes = seconds / 60;
+        long secs = seconds % 60;
+        
+        return String.format("%02d:%02d", minutes, secs);
     }
     
     /**
@@ -257,6 +374,12 @@ public class SimpleGameEvent extends GameEvent {
             plugin.getEventDisplayManager().showEventStart(this);
             hasShownStart = true;
         }
+        
+        // Set start time
+        startTime = System.currentTimeMillis();
+        if (duration > 0) {
+            endTime = startTime + (duration * 50); // duration is in ticks, convert to milliseconds
+        }
 
         if (saveInventory) {
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -296,6 +419,10 @@ public class SimpleGameEvent extends GameEvent {
 
         if (tickAction != null || finishCondition != null) {
             tickTask = Bukkit.getScheduler().runTaskTimer(plugin, this::onTick, 1L, tickInterval);
+        }
+        
+        if (scoreboardManager != null) {
+            scoreboardManager.show();
         }
 
         if (startAction != null) startAction.accept(this);
@@ -349,6 +476,10 @@ public class SimpleGameEvent extends GameEvent {
 
         registeredListeners.forEach(HandlerList::unregisterAll);
         registeredListeners.clear();
+        
+        if (scoreboardManager != null) {
+            scoreboardManager.hide();
+        }
 
         // Apply rewards to winning players
         if (winCondition != null && rewardAction != null) {
@@ -391,6 +522,8 @@ public class SimpleGameEvent extends GameEvent {
         
         private BiPredicate<Player, SimpleGameEvent> winCondition;
         private BiConsumer<Player, SimpleGameEvent> rewardAction;
+        
+        private String scoreboardTitle;
 
         public Builder(TwitchIntegration plugin) {
             this.plugin = plugin;
@@ -525,6 +658,16 @@ public class SimpleGameEvent extends GameEvent {
         public Builder withReward(BiPredicate<Player, SimpleGameEvent> condition, BiConsumer<Player, SimpleGameEvent> action) {
             this.winCondition = condition;
             this.rewardAction = action;
+            return this;
+        }
+        
+        /**
+         * Enables a scoreboard for this event.
+         * @param title The title of the scoreboard (supports color codes with &)
+         * @return Builder instance for chaining
+         */
+        public Builder withScoreboard(String title) {
+            this.scoreboardTitle = title;
             return this;
         }
 

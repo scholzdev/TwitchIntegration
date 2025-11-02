@@ -18,6 +18,17 @@ public class TestEvent implements SimpleGameEventProvider {
         .votingName("test")
         .duration(200)
         .countdown(5)
+        .withScoreboard("Test Scoreboard")
+        .tickInterval(20)
+        .onStartWithEvent(e -> {
+            e.setScoreboardLine(1, "&7─────────");
+            e.setScoreboardLine(2, "&eStatus: &aActive");
+            e.updateScoreboard();
+        })
+        .onTick(e -> {
+            e.setScoreboardLine(3, "&eTime: &f" + e.getRemainingTime());
+            e.updateScoreboard();
+        })
         .on(EntityDamageEvent.class, e -> {
             if (e.getEntity() instanceof Chicken
                     && e.getCause() != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {

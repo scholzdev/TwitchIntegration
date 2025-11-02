@@ -25,10 +25,8 @@ public class GameEventRegistrar {
         var manager = plugin.getGameEventManager();
 
         manager.registerEvent(new SpawnSilverfish(plugin));
-        manager.registerEvent(new GravityFlip(plugin));
         manager.registerEvent(new WrathOfKoko(plugin));
         manager.registerEvent(new RandomTP(plugin));
-        manager.registerEvent(new InventoryShuffle(plugin));
 
         List<SimpleGameEventProvider> providers = List.of(
             new TestEvent(),
@@ -44,7 +42,9 @@ public class GameEventRegistrar {
             new MemoryBuildEvent(),
             new PaintballEvent(),
             new SpleefEvent(),
-            new RiddleGameEvent()
+            new RiddleGameEvent(),
+            new GravityFlipEvent(),
+            new InventoryShuffleEvent()
         );
 
         providers.forEach(provider -> manager.registerEvent(provider.create(plugin)));
