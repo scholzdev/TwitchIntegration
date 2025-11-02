@@ -37,3 +37,5 @@ public class PhantomEvent extends AbstractSimpleGameProvider {
                 .build();
     }
 }
+
+// conditions for event to start: ie (.contition(() -> playerSize() > 2)

@@ -7,10 +7,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.Sound;
 import org.bukkit.entity.Chicken;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
@@ -35,6 +37,24 @@ public class ChickenJockeyEvent extends AbstractSimpleGameProvider {
                         }
                     });
                 })
+                .on(EntityDeathEvent.class, (deathEvent, gameEvent) -> {
+                    Entity entity = deathEvent.getEntity();
+                    if (entity instanceof Chicken || entity instanceof Zombie) {
+                        Player killer = deathEvent.getEntity().getKiller();
+                        if (killer != null) {
+                            gameEvent.trackKill(killer);
+                        }
+                    }
+                })
+                .finishWhen(event -> event.areAllSpawnedEntitiesDead())
+                .withReward(
+                    (player, gameEvent) -> gameEvent.getKillCount(player) >= 3,
+                    (player, gameEvent) -> {
+                        int kills = gameEvent.getKillCount(player);
+                        player.getInventory().addItem(new ItemStack(Material.DIAMOND, kills));
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                    }
+                )
                 .build();
     }
 
@@ -58,7 +78,7 @@ public class ChickenJockeyEvent extends AbstractSimpleGameProvider {
         zombie.getEquipment().setHelmet(new ItemStack(Material.IRON_HELMET));
         zombie.getEquipment().setHelmetDropChance(0.0f);
 
-        chicken.addPotionEffect(PotionEffectType.SPEED.createEffect(600, 1));
+        chicken.addPotionEffect(PotionEffectType.SLOWNESS.createEffect(600, 1));
 
         chicken.addPassenger(zombie);
     }

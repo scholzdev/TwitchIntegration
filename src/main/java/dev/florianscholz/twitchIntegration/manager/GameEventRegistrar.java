@@ -40,7 +40,11 @@ public class GameEventRegistrar {
             new DrunkModeEvent(),
             new SlownessEvent(),
             new FarmBlocksEvent(),
-            new PhantomEvent()
+            new PhantomEvent(),
+            new MemoryBuildEvent(),
+            new PaintballEvent(),
+            new SpleefEvent(),
+            new RiddleGameEvent()
         );
 
         providers.forEach(provider -> manager.registerEvent(provider.create(plugin)));

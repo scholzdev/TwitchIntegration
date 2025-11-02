@@ -49,6 +49,7 @@ tasks.withType(JavaCompile).configureEach {
 
 shadowJar {
     archiveClassifier.set('')
+    destinationDirectory.set(file('/Users/scholzf/Desktop/MC/plugins'))
 
     // Wichtig: Alle Dependencies shaden
     configurations = [project.configurations.runtimeClasspath]

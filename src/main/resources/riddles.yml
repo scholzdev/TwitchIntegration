@@ -1,0 +1,99 @@
+# Riddles configuration file
+# Format:
+# tasks:
+#   - name: "Riddle Name"
+#     question: "The riddle question"
+#     hint: "First hint for the player"
+#     hint2: "Second more specific hint"
+#     solution: "The answer the player must type in chat"
+
+tasks:
+  - name: "Ice Riddle"
+    question: "I am hard as rock, but melt in the sun. What am I?"
+    hint: "You can find me in cold biomes."
+    hint2: "I'm frozen water."
+    solution: "ice"
+    
+  - name: "Tree Riddle"
+    question: "I grow from the ground and reach for the sky, with leaves that sway in the breeze."
+    hint: "I provide wood when broken."
+    hint2: "I'm the most common tree in forests."
+    solution: "oak tree"
+    
+  - name: "Honey Riddle"
+    question: "I'm yellow and sweet, bees love me, and I can be made into blocks."
+    hint: "Pooh Bear's favorite food."
+    hint2: "Bees make me in their nests."
+    solution: "honey"
+    
+  - name: "Diamond Riddle"
+    question: "I shine bright like a star, but I'm found deep underground."
+    hint: "Jewelry is often made from me."
+    hint2: "I'm the most valuable ore in the game."
+    solution: "diamond"
+    
+  - name: "Lava Riddle"
+    question: "I'm red and hot, flowing like water but burning everything I touch."
+    hint: "I'm found in the Nether and deep underground."
+    hint2: "I'm molten rock."
+    solution: "lava"
+    
+  - name: "Glass Riddle"
+    question: "I'm smooth and transparent, letting light through but keeping weather out."
+    hint: "You can see through me clearly."
+    hint2: "I'm made by smelting sand."
+    solution: "glass"
+    
+  - name: "Gold Riddle"
+    question: "I'm the king's seat, made for royalty, decorated and grand."
+    hint: "You might find me in castles."
+    hint2: "I'm a precious yellow metal."
+    solution: "gold"
+    
+  - name: "Obsidian Riddle"
+    question: "I'm dark as night, hard as stone, and born from intense heat."
+    hint: "I'm created when lava meets water."
+    hint2: "I'm used to build portals."
+    solution: "obsidian"
+    
+  - name: "Snow Riddle"
+    question: "I'm soft and white, falling from the sky, covering the ground in winter."
+    hint: "I melt in warm biomes."
+    hint2: "I'm made of frozen water crystals."
+    solution: "snow"
+    
+  - name: "Cloud Riddle"
+    question: "I'm neither solid nor liquid, but I can carry you across the sky."
+    hint: "I sometimes bring rain."
+    hint2: "I'm fluffy and white in the sky."
+    solution: "cloud"
+    
+  - name: "Ender Eye Riddle"
+    question: "I'm a monster's eye, glowing in the dark, leading to another dimension."
+    hint: "I'm used to activate a special portal."
+    hint2: "I'm made from an Ender Pearl and Blaze Powder."
+    solution: "ender eye"
+    
+  - name: "End Portal Riddle"
+    question: "I'm created by ancient magic, a portal to a realm of darkness."
+    hint: "The End lies beyond me."
+    hint2: "I need 12 frame blocks and eyes to activate."
+    solution: "end portal"
+    
+  - name: "Conduit Riddle"
+    question: "I'm the heart of the ocean, giving life and power to those who find me."
+    hint: "I'm a rare underwater structure."
+    hint2: "I provide water breathing to nearby players."
+    solution: "conduit"
+    
+  - name: "Dragon Egg Riddle"
+    question: "I'm the breath of a dragon, captured in crystal form."
+    hint: "I'm found in End Cities."
+    hint2: "I'm a rare trophy from defeating the Ender Dragon."
+    solution: "dragon egg"
+    
+  - name: "Beacon Riddle"
+    question: "I'm the beacon of hope, shining light to the sky, powered by precious materials."
+    hint: "I provide status effects in a radius."
+    hint2: "I need a pyramid of mineral blocks to work."
+    solution: "beacon"
